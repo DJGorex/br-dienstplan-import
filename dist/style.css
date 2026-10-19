@@ -39,3 +39,8 @@
 @media(max-width:760px){.topbar{min-height:85px;padding-top:20px;padding-bottom:20px}.header-actions{gap:16px}}
 @media(max-width:520px){.header-actions{gap:8px}}
 @media(prefers-reduced-motion:reduce){.theme-track::before{transition:none}}
+
+.install-button{display:flex;align-items:center;justify-content:center;gap:10px;min-height:46px;margin-top:24px;padding:12px 20px;font-weight:500}
+.install-button svg{width:18px;height:18px}
+.install-button:not([hidden])+.hero{padding-top:36px}
+@media(max-width:520px){.install-button{width:100%;margin-top:20px}.install-button:not([hidden])+.hero{padding-top:28px}}
