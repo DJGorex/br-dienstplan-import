@@ -8,7 +8,17 @@ try {
  const context=await browser.newContext({acceptDownloads:true});const page=await context.newPage();
  const errors=[];page.on('pageerror',e=>errors.push(e.message));const requests=[];page.on('request',r=>requests.push({url:r.url(),method:r.method()}));
  const importPDF=async()=>{await page.setInputFiles('#pdf-file',{name:'synthetic-duty-plan.pdf',mimeType:'application/pdf',buffer:fixturePDF()});await page.waitForSelector('#plan-panel:not([hidden])');};
- await page.goto(base);await importPDF();assert.equal(await page.locator('#person option').count(),4);
+ await page.emulateMedia({colorScheme:'dark'});await page.goto(base);
+ assert.equal(await page.locator('html').getAttribute('data-theme'),'dark');
+ const themeSwitch=page.getByRole('switch',{name:'Dunkelmodus'});
+ assert.equal(await themeSwitch.getAttribute('aria-checked'),'true');
+ await page.emulateMedia({colorScheme:'light'});await page.waitForFunction(()=>document.documentElement.dataset.theme==='light');
+ await themeSwitch.click();assert.equal(await page.locator('html').getAttribute('data-theme'),'dark');
+ await page.emulateMedia({colorScheme:'dark'});await page.emulateMedia({colorScheme:'light'});
+ assert.equal(await page.locator('html').getAttribute('data-theme'),'dark');
+ await themeSwitch.focus();await page.keyboard.press('Space');assert.equal(await themeSwitch.getAttribute('aria-checked'),'false');
+ await themeSwitch.click();assert.equal(await themeSwitch.getAttribute('aria-checked'),'true');
+ await importPDF();assert.equal(await page.locator('#person option').count(),4);
  assert.equal(await page.locator('.brand-sub').count(),0);assert.equal(await page.locator('#share').count(),0);assert.equal(await page.locator('.export-note').count(),0);
  assert.equal(await page.locator('#download').getAttribute('class'),'primary');assert.equal(await page.locator('#duration').inputValue(),'0');
  await page.selectOption('#person','0');assert.ok(await page.locator('#download').isEnabled());
@@ -28,7 +38,7 @@ try {
  assert.equal(await page.evaluate(()=>localStorage.length),0);assert.equal(await page.evaluate(async()=>(await indexedDB.databases()).length),0);
  const cache=await page.evaluate(async()=>{let urls=[];for(const k of await caches.keys()){const c=await caches.open(k);urls.push(...(await c.keys()).map(r=>r.url))}return urls});
  assert.ok(!cache.some(u=>/\.pdf$|\.ics$/.test(u)));assert.ok(requests.every(r=>r.method==='GET'&&r.url.startsWith(base)));
- for(const width of [390,320]){await page.setViewportSize({width,height:844});assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));}
+ for(const width of [390,320]){await page.setViewportSize({width,height:844});for(const mode of ['dark','light']){if(await page.locator('html').getAttribute('data-theme')!==mode)await themeSwitch.click();assert.ok(await themeSwitch.isVisible());assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));}}
  await page.click('#reset');assert.deepEqual(errors,[]);
  console.log('Browser: import, selection, ICS export, reset, offline, privacy and mobile layouts verified.');
 } finally {await browser.close();}
