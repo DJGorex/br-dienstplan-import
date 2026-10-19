@@ -1,12 +1,12 @@
 // Entirely synthetic PDF: no real people or shifts are embedded.
 export function fixturePDF() {
   const names = ['Person Alpha', 'Person Beta', 'Person Gamma'];
-  const cells = [['2000', 'poker', 'frei'], ['1700', 'office', '1930'], ['frei', '17br', 'sem']];
+  const cells = [['2000', 'poker', 'frei'], ['1700', 'office', '1930'], ['frei', '17br', 'sem'], ['U', 'frei', 'U']];
   const text = (s, x, y, vertical = false) => `BT /F1 10 Tf ${vertical ? '0 1 -1 0' : '1 0 0 1'} ${x} ${y} Tm (${s}) Tj ET`;
   const commands = names.map((n, i) => text(n, 250 + i * 80, 660, true));
-  for (let day = 0; day < 3; day++) {
+  for (let day = 0; day < 4; day++) {
     const y = 640 - day * 20;
-    commands.push(text(['SO', 'MO', 'DI'][day], 100, y), text(`${day + 1}. Nov. 26`, 130, y));
+    commands.push(text(['SO', 'MO', 'DI', 'MI'][day], 100, y), text(`${day + 1}. Nov. 26`, 130, y));
     cells[day].forEach((s, i) => commands.push(text(s, 240 + i * 80, y)));
   }
   const stream = commands.join('\n');
