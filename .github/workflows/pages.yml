@@ -1,0 +1,56 @@
+name: Publish PWA to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: github-pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - run: npm run prepare-assets
+      - run: npm test
+      - run: npm run test:pdf
+      - run: npx playwright install --with-deps chromium
+      - name: Verify PWA at its GitHub Pages subpath
+        run: |
+          node server.mjs > /tmp/dienstplan-server.log 2>&1 &
+          server_pid=$!
+          trap 'kill "$server_pid"' EXIT
+          for attempt in {1..30}; do
+            if curl --fail --silent http://127.0.0.1:4173/br-dienstplan-import/ > /dev/null; then break; fi
+            sleep 1
+          done
+          TEST_BASE_URL=http://127.0.0.1:4173/br-dienstplan-import/ npm run test:browser
+      - name: Check publishable assets
+        run: node scripts/check-public-assets.mjs
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: dist
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/deploy-pages@v4
+        id: deployment

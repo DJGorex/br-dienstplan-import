@@ -1,0 +1,25 @@
+{
+  "name": "dienstplan-pwa",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "prepare-assets": "node prepare-assets.mjs",
+    "dev": "node server.mjs",
+    "test": "node --test tests/core.test.mjs",
+    "test:pdf": "node tests/pdf.mjs",
+    "test:browser": "node tests/browser.mjs"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "dependencies": {
+    "@fontsource/jost": "^5.3.0",
+    "pdfjs-dist": "^6.4.299"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.64.1"
+  },
+  "private": true
+}

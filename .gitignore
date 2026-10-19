@@ -1,0 +1,10 @@
+node_modules/
+.DS_Store
+.openai/
+.local-tests/
+test-results/
+playwright-report/
+*.pdf
+*.ics
+.env
+.env.*

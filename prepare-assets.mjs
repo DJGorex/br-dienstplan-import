@@ -1,0 +1,10 @@
+import {mkdir,copyFile,cp,readdir,writeFile,readFile} from 'node:fs/promises';
+import {createHash} from 'node:crypto';
+await mkdir('dist/vendor',{recursive:true});await mkdir('dist/fonts',{recursive:true});
+for(const name of ['pdf.mjs','pdf.worker.mjs'])await copyFile('node_modules/pdfjs-dist/build/'+name,'dist/vendor/'+name);
+for(const name of ['cmaps','standard_fonts'])await cp('node_modules/pdfjs-dist/'+name,'dist/vendor/'+name,{recursive:true});
+await copyFile('node_modules/pdfjs-dist/LICENSE','dist/vendor/PDFJS-LICENSE');
+for(const weight of [400,500,600])await copyFile(`node_modules/@fontsource/jost/files/jost-latin-${weight}-normal.woff2`,`dist/fonts/jost-latin-${weight}-normal.woff2`);
+await copyFile('node_modules/@fontsource/jost/LICENSE','dist/fonts/JOST-LICENSE');
+async function walk(dir){let all=[];for(const e of (await readdir(dir,{withFileTypes:true})).sort((a,b)=>a.name.localeCompare(b.name))){const path=dir+'/'+e.name;if(e.isDirectory())all.push(...await walk(path));else if(e.name!=='sw.js'&&e.name!=='_headers')all.push('./'+path.slice(5))}return all}
+const assets=['./',...await walk('dist')];const hash=createHash('sha256');for(const asset of assets.slice(1))hash.update(await readFile('dist/'+asset.slice(2)));const version=hash.digest('hex').slice(0,12);await writeFile('dist/sw.js',`const PREFIX='dienstplan:'+self.registration.scope+':';const CACHE=PREFIX+'${version}';const ASSETS=${JSON.stringify(assets)};self.addEventListener('install',e=>{e.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS)));self.skipWaiting()});self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k.startsWith(PREFIX)&&k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim()))});self.addEventListener('fetch',e=>{if(e.request.method!=='GET')return;const u=new URL(e.request.url);if(u.origin!==self.location.origin)return;const allowed=new Set(ASSETS.map(p=>new URL(p,self.registration.scope).href));if(!allowed.has(u.href))return;e.respondWith(caches.match(e.request).then(c=>c||fetch(e.request)))});`);
