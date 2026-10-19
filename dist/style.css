@@ -40,6 +40,8 @@
 @media(max-width:520px){.header-actions{gap:8px}}
 @media(prefers-reduced-motion:reduce){.theme-track::before{transition:none}}
 
-.install-button{display:block;margin-top:32px}
-.install-button:not([hidden])+.hero{padding-top:36px}
-@media(max-width:520px){.install-button{width:100%;margin-top:28px}.install-button:not([hidden])+.hero{padding-top:28px}}
+.install-icon{display:grid;place-items:center;width:44px;min-width:44px;height:44px;padding:0;border:1px solid transparent;border-radius:50%;color:var(--navy);background:transparent}
+.install-icon svg{width:21px;height:21px}
+.install-icon:hover{color:var(--teal);background:#008fa20d;border-color:var(--line)}
+[data-theme=dark] .install-icon:hover{background:#97cbd310}
+@media(max-width:360px){.topbar{gap:8px}.brand{font-size:14px;letter-spacing:1.8px;gap:10px}.brand-icon{width:36px;height:41px}}
