@@ -32,10 +32,10 @@ jobs:
           server_pid=$!
           trap 'kill "$server_pid"' EXIT
           for attempt in {1..30}; do
-            if curl --fail --silent http://127.0.0.1:4173/br-dienstplan-import/ > /dev/null; then break; fi
+            if curl --fail --silent http://127.0.0.1:4173/ics-dienstplan/ > /dev/null; then break; fi
             sleep 1
           done
-          TEST_BASE_URL=http://127.0.0.1:4173/br-dienstplan-import/ npm run test:browser
+          TEST_BASE_URL=http://127.0.0.1:4173/ics-dienstplan/ npm run test:browser
       - name: Check publishable assets
         run: node scripts/check-public-assets.mjs
       - uses: actions/configure-pages@v5

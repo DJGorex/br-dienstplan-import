@@ -45,3 +45,10 @@
 .install-icon:hover{color:var(--teal);background:#008fa20d;border-color:var(--line)}
 [data-theme=dark] .install-icon:hover{background:#97cbd310}
 @media(max-width:360px){.topbar{gap:8px}.brand{font-size:14px;letter-spacing:1.8px;gap:10px}.brand-icon{width:36px;height:41px}}
+
+.options{align-items:flex-start;flex-wrap:wrap;gap:14px 24px}
+.option-checkboxes{display:flex;flex-wrap:wrap;gap:12px 22px;flex:1}
+.option-checkboxes label{min-height:24px}
+.options>span{white-space:nowrap;padding-top:4px}
+@media(max-width:760px){.option-checkboxes{flex-basis:100%}}
+@media(max-width:520px){.option-checkboxes{flex-direction:column;gap:10px}}

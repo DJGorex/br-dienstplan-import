@@ -7,3 +7,14 @@ test('Widersprüchliche Mehrseitenpläne werden abgewiesen',()=>{assert.throws((
 test('ICS-Titel verwenden Casino statt des ausgewählten Namens',()=>{const ics=createICS('Person Beispiel',[{date:'2026-11-01',raw:'2000'},{date:'2026-11-02',raw:'17br'},{date:'2026-11-03',raw:'office'},{date:'2026-11-04',raw:'U'}],0);const titles=ics.split('\r\n').filter(l=>l.startsWith('SUMMARY:'));assert.deepEqual(titles,['SUMMARY:Dienst · Casino','SUMMARY:BR · Casino','SUMMARY:OFFICE · Casino','SUMMARY:U · Casino']);});
 
 test('Kürzel werden originalgetreu groß und ohne Dienst-Präfix exportiert',()=>{const codes=['poker','PoKeR','office','sem','br','17br','19:30br','sondercode'];const ics=createICS('Person Beispiel',codes.map((raw,i)=>({date:'2026-11-'+String(i+1).padStart(2,'0'),raw})),0);assert.deepEqual(ics.split('\r\n').filter(l=>l.startsWith('SUMMARY:')),['SUMMARY:POKER · Casino','SUMMARY:POKER · Casino','SUMMARY:OFFICE · Casino','SUMMARY:SEM · Casino','SUMMARY:BR · Casino','SUMMARY:BR · Casino','SUMMARY:BR · Casino','SUMMARY:SONDERCODE · Casino']);assert.match(ics,/DTSTART:20261106T160000Z/);assert.match(ics,/DTSTART:20261107T183000Z/);});
+
+
+test('Originalbezeichnungen bleiben unverändert, ohne Casino-Zusatz und mit denselben Zeiten/UIDs',()=>{
+ const entries=['1900','17br','poker','frei','U','a,b;test'].map((raw,i)=>({date:'2026-11-'+String(i+1).padStart(2,'0'),raw}));
+ const normal=createICS('Person Beispiel',entries,8);
+ const original=createICS('Person Beispiel',entries,8,{originalTitles:true});
+ const values=(ics,prefix)=>ics.split('\r\n').filter(l=>l.startsWith(prefix));
+ assert.deepEqual(values(original,'SUMMARY:'),['SUMMARY:1900','SUMMARY:17br','SUMMARY:poker','SUMMARY:frei','SUMMARY:U','SUMMARY:a\\,b\\;test']);
+ for(const prefix of ['DTSTART','DTEND','UID:'])assert.deepEqual(values(original,prefix),values(normal,prefix));
+ assert.deepEqual(values(createICS('Person Beispiel',entries,8,{originalTitles:false}),'SUMMARY:'),values(normal,'SUMMARY:'));
+});
