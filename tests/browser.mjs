@@ -15,13 +15,13 @@ try {
  assert.equal(await page.locator('.shift').count(),2);await page.getByLabel('Urlaub mitnehmen',{exact:true}).check();
  assert.equal(await page.locator('.shift').count(),3);assert.ok((await page.locator('#rows').innerText()).includes('Urlaub'));assert.ok(!(await page.locator('#rows').innerText()).includes('Frei'));
  const vacationDownload=page.waitForEvent('download');await page.click('#download');const vacationFile=await vacationDownload;const vacationICS=await readFile(await vacationFile.path(),'utf8');
- assert.ok(vacationICS.includes('SUMMARY:Urlaub · Casino'));assert.ok(!vacationICS.includes('SUMMARY:Frei'));
+ assert.ok(vacationICS.includes('SUMMARY:U · Casino'));assert.ok(!vacationICS.includes('SUMMARY:Frei'));
  assert.ok(!vacationICS.includes('DTEND:'));await page.locator('#absence').uncheck();
  await page.selectOption('#duration','8');assert.ok(await page.locator('#download').isEnabled());
  assert.equal(await page.locator('.shift').count(),2);await page.locator('.shift input').first().uncheck();assert.match(await page.locator('#count').innerText(),/1 Eintr/);
  await page.selectOption('#person','1');assert.ok((await page.locator('#rows').innerText()).includes('17br'));
  const dl=page.waitForEvent('download');await page.click('#download');const file=await dl;const content=await readFile(await file.path(),'utf8');
- assert.ok(content.startsWith('BEGIN:VCALENDAR'));assert.ok(content.includes('Person Beta'));assert.ok(!content.includes('Person Alpha'));assert.ok(content.includes('SUMMARY:Dienst · br · Casino'));assert.ok(content.includes('SUMMARY:Poker · Casino'));assert.ok(!content.includes('SUMMARY:Dienst · br · Person Beta'));
+ assert.ok(content.startsWith('BEGIN:VCALENDAR'));assert.ok(content.includes('Person Beta'));assert.ok(!content.includes('Person Alpha'));assert.ok(content.includes('SUMMARY:BR · Casino'));assert.ok(content.includes('SUMMARY:POKER · Casino'));assert.ok(!content.includes('SUMMARY:Dienst · br · Person Beta'));
  await page.click('#reset');assert.equal(await page.locator('#person option').count(),1);assert.equal(await page.locator('.shift').count(),0);assert.equal(await page.locator('#duration').inputValue(),'0');
  await page.evaluate(async()=>{await navigator.serviceWorker.ready;});await page.waitForFunction(()=>navigator.serviceWorker.controller!==null);
  await context.setOffline(true);await page.reload();await importPDF();await page.selectOption('#person','2');await page.selectOption('#duration','0');assert.ok(await page.locator('#download').isEnabled());
